@@ -1,7 +1,19 @@
 const calBody = document.getElementById('cal-body');
 const calBtns = {};
 
-for (const calBtn of calBody.children) {
+ // show stored number or result
+ if (localStorage.getItem('savedRes')) {
+    document.getElementById('result').innerText = JSON.parse(localStorage.getItem('savedRes'));
+ } else {
+    document.getElementById('result').innerText = JSON.parse(localStorage.getItem('savedNum'));
+ }
+ // show stored process
+ if (localStorage.getItem('savedCal')) {
+    document.getElementById('process').innerText = JSON.parse(localStorage.getItem('savedCal')).join("");
+ }
+
+ // Set event for all the calculator buttons
+ for (const calBtn of calBody.children) {
     
     // make btn and value array
     if (calBtn.id === "back") calBtns[calBtn.id] = "<";
@@ -13,8 +25,6 @@ for (const calBtn of calBody.children) {
         calculate(calBtns[calBtn.id]);
     });
 }
- //console.log(calBtns);
-
 
 const calculate = (x) => {
     // get saved calculate process
@@ -52,9 +62,12 @@ const calculate = (x) => {
         case "-":
         case "÷":
         case "×":
-            if (savedNum) savedCal.push(savedNum);
-            savedCal.push(x);
-            savedNum = "";
+            // push when there is number already input
+            if (savedNum) {
+                savedCal.push(savedNum);
+                savedCal.push(x);
+                savedNum = "";
+            }
             break;  
         case "=":
 
@@ -71,8 +84,11 @@ const calculate = (x) => {
             // round at 8 decimal point
             savedRes = Math.round(savedRes * 100000000)/100000000;
 
+            savedNum = "";
+
             break;  
         default:
+            savedRes = "";
             savedNum += x;
             break;
     }
