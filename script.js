@@ -2,15 +2,18 @@ const calBody = document.getElementById('cal-body');
 const calBtns = {};
 
 for (const calBtn of calBody.children) {
-    calBtns[calBtn.id] = calBtn.innerText;
+    
+    // make btn and value array
+    if (calBtn.id === "back") calBtns[calBtn.id] = "<";
+    else calBtns[calBtn.id] = calBtn.innerText;
 
     // add event
     calBtn.addEventListener('click', (e)=> {
         e.preventDefault();
-        calculate(calBtn.innerText);
+        calculate(calBtns[calBtn.id]);
     });
 }
-//console.log(calBtns);
+ //console.log(calBtns);
 
 
 const calculate = (x) => {
@@ -21,10 +24,6 @@ const calculate = (x) => {
     let savedCal = (localStorage.getItem('savedCal'))? JSON.parse(localStorage.getItem('savedCal')): [];
     let savedNum = (localStorage.getItem('savedNum'))? JSON.parse(localStorage.getItem('savedNum')): "";
     let savedRes = (localStorage.getItem('savedRes'))? JSON.parse(localStorage.getItem('savedRes')): "";
-
-    console.log("savedCal 1: ", savedCal);
-    console.log("savedNum 1: ", savedNum);
-    console.log("savedRes 1: ", savedRes);
     
     switch (x) {
         case "CE":
@@ -37,28 +36,41 @@ const calculate = (x) => {
             savedRes ="";
             savedCal = [];
             break;            
-        case "Back":
-            // remove single letter
+        case "<":
+            // remove the last single number
             if (savedNum.length > 0) savedNum = savedNum.slice(0,-1);
             break;            
         case "+/-":
             // switch to negative/positive
-            savedNum = Math.abs(savedNum) * -1;
+            if (savedNum > 0) {
+                savedNum = `(${savedNum * -1})`;
+            } else {
+                savedNum = savedNum.replace("(", "").replace(")", "") * -1;
+            }
             break;                    
         case "+":         
         case "-":
-        case "/":
-        case "*":
-        case "%":
-            savedCal.push(savedNum);
+        case "÷":
+        case "×":
+            if (savedNum) savedCal.push(savedNum);
             savedCal.push(x);
             savedNum = "";
             break;  
         case "=":
-            // **** 상단에 같은 숫자다 두번 나타남, 왜??
-            savedCal.push(savedNum);
+
+            if (savedNum) savedCal.push(savedNum);
+
+            // join and replace ÷ and × to js math operatior
+            let savedCalJoin = savedCal.join('')
+            .replaceAll("÷", "/")
+            .replaceAll("×", "*");
+            // console.log(savedCalJoin);
+
             // calculate sting as number
-            savedRes = eval(savedCal.join(''));
+            savedRes = eval(savedCalJoin);
+            // round at 8 decimal point
+            savedRes = Math.round(savedRes * 100000000)/100000000;
+
             break;  
         default:
             savedNum += x;
