@@ -77,15 +77,13 @@ const calculate = (x) => {
             let savedCalJoin = savedCal.join('')
             .replaceAll("÷", "/")
             .replaceAll("×", "*");
-            // console.log(savedCalJoin);
 
             // calculate sting as number
             savedRes = eval(savedCalJoin);
+            
             // round at 8 decimal point
             savedRes = Math.round(savedRes * 100000000)/100000000;
-
             savedNum = "";
-
             break;  
         default:
             savedRes = "";
